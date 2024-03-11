@@ -431,14 +431,12 @@ func RegisterCache() {
 		beegoCache.DefaultEvery = cacheInterval
 		cache.Init(memory)
 	} else if cacheProvider == "redis" {
-		//设置Redis前缀
-		if key := web.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
-			redis.DefaultKey = key
-		}
+
 		var redisConfig struct {
 			Conn     string `json:"conn"`
 			Password string `json:"password"`
 			DbNum    string `json:"dbNum"`
+			Key      string `json:"key"`
 		}
 		redisConfig.DbNum = "0"
 		redisConfig.Conn = web.AppConfig.DefaultString("cache_redis_host", "")
@@ -447,6 +445,11 @@ func RegisterCache() {
 		}
 		if dbNum := web.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
 			redisConfig.DbNum = strconv.Itoa(dbNum)
+		}
+		//设置Redis前缀
+		redisConfig.Key = redis.DefaultKey
+		if key := web.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
+			redisConfig.Key = key
 		}
 
 		bc, err := json.Marshal(&redisConfig)
