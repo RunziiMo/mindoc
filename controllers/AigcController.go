@@ -80,6 +80,7 @@ func (c *AigcController) Chat() {
 		logs.Error("failed to call inference server %v", err)
 		c.JsonResult(1, "访问推理服务失败", err)
 	}
+	logs.Trace("inference result %s", m.Response)
 	m.Update("response")
 
 	c.JsonResult(0, "ok", m)
