@@ -36,7 +36,7 @@ type CookieRemember struct {
 
 // Prepare 预处理.
 func (c *BaseController) Prepare() {
-	c.Data["SiteName"] = "MinDoc"
+	c.Data["SiteName"] = "AiDoc"
 	c.Data["Member"] = models.NewMember()
 	controller, action := c.GetControllerAndAction()
 
@@ -83,7 +83,7 @@ func (c *BaseController) Prepare() {
 	c.SetLang()
 }
 
-//判断用户是否登录.
+// 判断用户是否登录.
 func (c *BaseController) isUserLoggedIn() bool {
 	return c.Member != nil && c.Member.MemberId > 0
 }
@@ -127,7 +127,7 @@ func (c *BaseController) JsonResult(errCode int, errMsg string, data ...interfac
 	c.StopRun()
 }
 
-//如果错误不为空，则响应错误信息到浏览器.
+// 如果错误不为空，则响应错误信息到浏览器.
 func (c *BaseController) CheckJsonError(code int, err error) {
 
 	if err == nil {
@@ -182,7 +182,7 @@ func (c *BaseController) BaseUrl() string {
 	return baseUrl
 }
 
-//显示错误信息页面.
+// 显示错误信息页面.
 func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	c.TplName = "errors/error.tpl"
 

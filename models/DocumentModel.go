@@ -387,7 +387,9 @@ func (item *Document) Processor() *Document {
 		docQuery.Find("vbscript").Remove()
 
 		if html, err := docQuery.Html(); err == nil {
-			item.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html), "<html><head></head><body>"), "</body></html>")
+			html = strings.TrimSpace(html)
+			html = strings.TrimPrefix(html, "<html><head></head><body>")
+			item.Release = strings.TrimSuffix(html, "</body></html>")
 		}
 	}
 

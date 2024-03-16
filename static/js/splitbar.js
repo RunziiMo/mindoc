@@ -171,5 +171,5 @@ $(function () {
     /**
      * 关闭侧边栏时，同步分割条；
      */
-    $(".manual-fullscreen-switch").on("click", splitBar.reset);
+    $(".manual-left .manual-fullscreen-switch").on("click", splitBar.reset);
 });

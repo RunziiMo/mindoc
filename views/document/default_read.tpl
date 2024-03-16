@@ -64,7 +64,7 @@
     </style>
 </head>
 <body>
-<div class="m-manual manual-mode-view manual-reader">
+<div class="m-manual manual-mode-view manual-reader manual-fullscreen-active">
     <header class="navbar navbar-static-top manual-head" role="banner">
         <div class="container-fluid">
             <div class="navbar-header pull-left manual-title">
@@ -234,6 +234,49 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+        <div class="manual-aigc">
+            <div class="manual-tab">
+                <div class="tab-navg">
+                    <span data-mode="search" class="navg-item"><i class="fa fa-search"></i><b class="text">{{i18n .Lang "doc.search"}}</b></span>
+                    <span style="float: right;display: inline-block;padding: 5px;cursor: pointer;">
+                        <i class="fa fa-angle-left" style="font-size: 20px;padding-right: 5px;"></i>
+                        <span class="pull-right" style="padding-top: 4px;">{{i18n .Lang "doc.expand"}}</span>
+                    </span>
+                </div>
+                <div class="tab-util">
+                    <span class="manual-fullscreen-switch">
+                        <b class="open fa fa-angle-left" title="{{i18n .Lang "doc.expand"}}"></b>
+                        <b class="close fa fa-angle-right" title="{{i18n .Lang "doc.close"}}"></b>
+                    </span>
+                </div>
+                <div class="tab-wrap">
+                    <div class="tab-item manual-catalog">
+                    </div>
+                    <div class="tab-item manual-search">
+                        <div class="search-container">
+                            <div class="search-form">
+                                <form id="searchForm" action="{{urlfor "DocumentController.Search" ":key" .Model.Identify}}" method="post">
+                                    <div class="form-group">
+                                        <input type="search" placeholder="{{i18n .Lang "message.search_placeholder"}}" class="form-control" name="keyword">
+                                        <button type="submit" class="btn btn-default btn-search" id="btnSearch">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="search-result">
+                                <div class="search-empty">
+                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                    <b class="text">{{i18n .Lang "message.no_search_result"}}</b>
+                                </div>
+                                <ul class="search-list">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="manual-progress"><b class="progress-bar"></b></div>

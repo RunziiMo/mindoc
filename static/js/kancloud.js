@@ -285,6 +285,7 @@ $(function () {
     }).resize();
 
     window.isFullScreen = false;
+    window.NoAigcScreen = false;
 
     initHighlighting();
     window.jsTree = $("#sidebar").jstree({
@@ -319,12 +320,24 @@ $(function () {
     /**
      * 关闭侧边栏
      */
-    $(".manual-fullscreen-switch").on("click", function () {
+    $(".manual-left .manual-fullscreen-switch").on("click", function () {
         isFullScreen = !isFullScreen;
         if (isFullScreen) {
             $(".m-manual").addClass('manual-fullscreen-active');
         } else {
             $(".m-manual").removeClass('manual-fullscreen-active');
+        }
+    });
+
+    /**
+     * 关闭aigc导航
+     */
+    $(".manual-aigc .manual-fullscreen-switch").on("click", function () {
+        NoAigcScreen = !NoAigcScreen;
+        if (NoAigcScreen) {
+            $(".m-manual").addClass('manual-aigc-deactive');
+        } else {
+            $(".m-manual").removeClass('manual-aigc-deactive');
         }
     });
 
