@@ -29,7 +29,6 @@ func (c *CommentController) Lists() {
 	data.Page = page
 
 	c.JsonResult(0, "ok", data)
-	return
 }
 
 func (c *CommentController) Create() {

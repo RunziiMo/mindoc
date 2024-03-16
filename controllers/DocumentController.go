@@ -67,6 +67,7 @@ func (c *DocumentController) Index() {
 			c.Data["Content"] = template.HTML(doc.Release)
 			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
 			c.Data["FoldSetting"] = "first"
+			c.Data["DocumentId"] = doc.DocumentId
 
 			if bookResult.Editor == EditorCherryMarkdown {
 				c.Data["MarkdownTheme"] = doc.MarkdownTheme
@@ -78,6 +79,10 @@ func (c *DocumentController) Index() {
 				page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
 				c.Data["Page"] = page
 			}
+
+			messages, count, _ := models.NewAigcChatMessage().QueryByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+			page := pagination.PageUtil(int(count), 1, conf.PageSize, messages)
+			c.Data["Messages"] = page
 		}
 	} else {
 		c.Data["Title"] = i18n.Tr(c.Lang, "blog.summary")

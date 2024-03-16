@@ -259,6 +259,9 @@ func init() {
 	web.Router("/comment/lists", &controllers.CommentController{}, "get:Lists")
 	web.Router("/comment/index", &controllers.CommentController{}, "*:Index")
 
+	web.Router("/aigc/chat", &controllers.AigcController{}, "post:Chat")
+	web.Router("/aigc/delete", &controllers.AigcController{}, "post:Delete")
+
 	web.Router("/search", &controllers.SearchController{}, "get:Index")
 
 	web.Router("/tag/:key", &controllers.LabelController{}, "get:Index")

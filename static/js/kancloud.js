@@ -122,7 +122,46 @@ function onDelComment($id) {
         success: function ($res) {
             if ($res.errcode == 0) {
                 layer.msg("删除成功");
-                $("div[data-id=" + $id + "]").remove();
+                $("#commentList div[data-id=" + $id + "]").remove();
+            } else {
+                layer.msg($res.message);
+            }
+        },
+        error: function () {
+            layer.msg("删除失败");
+        }
+    });
+}
+
+// 加载评论
+function loadMessage($message, $docid) {
+    var html = ""
+    html += "<div class=\"comment-item\" data-id=\"" + $message.message_id + "\">";
+    html += "<p class=\"info\"><a class=\"name\">" + $message.author + "</a><span class=\"date\">" + timeFormat($message.date) + "</span></p>";
+    html += "<div class=\"content\">" + $message.content + "</div>";
+    html += "<p class=\"util\">";
+    if ($message.show_del == 1) html += "<span class=\"operate toggle\">";
+    else html += "<span class=\"operate\">";
+    html += "<span class=\"number\">" + $message.index + "#</span>";
+    if ($message.show_del == 1) html += "<i class=\"delete e-delete glyphicon glyphicon-remove\" style=\"color:red\" onclick=\"onDelMessage(" + $message.message_id + ")\"></i>";
+    html += "</span>";
+    html += "</p>";
+    html += "</div>";
+    console.log(html)
+    $("#messageList").append(html);
+}
+
+// 删除大模型对话消息
+function onDelMessage($id) {
+    console.log($id);
+    $.ajax({
+        url: "/aigc/delete",
+        data: { "id": $id },
+        type: "POST",
+        success: function ($res) {
+            if ($res.errcode == 0) {
+                layer.msg("删除成功");
+                $("#messageList div[data-id=" + $id + "]").remove();
             } else {
                 layer.msg($res.message);
             }
@@ -143,7 +182,6 @@ function renderPage($data) {
     $("#doc_id").val($data.doc_id);
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
-
     }
     else {
         pageClicked(-1, $data.doc_id);
@@ -378,6 +416,33 @@ $(function () {
         },
         complete: function () {
             $("#btnSearch").removeAttr("disabled").find("i").removeClass("loading").addClass("fa-search");
+        }
+    });
+
+    /**
+     * aigc 对话文档分析
+     */
+    $("#aigcForm").ajaxForm({
+        beforeSubmit: function () {
+            var prompt = $.trim($("#aigcForm").find("input[name='prompt']").val());
+            if (prompt === "") {
+                return false;
+            }
+            $("#btnAigcChat").attr("disabled", "disabled").find("i").removeClass("fa-search").addClass("loading");
+        },
+        success: function (res) {
+            console.log(res);
+            if (res.errcode === 0) {
+                layer.msg("保存成功");
+            } else {
+                layer.msg(res.message);
+                return;
+            }
+            $("#aigcForm input[name=prompt]").val("");
+            loadMessage(res.data);
+        },
+        complete: function () {
+            $("#btnAigcChat").removeAttr("disabled").find("i").removeClass("loading").addClass("fa-search");
         }
     });
 

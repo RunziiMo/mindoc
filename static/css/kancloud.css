@@ -389,7 +389,7 @@ table>tbody>tr:hover {
 }
 
 .m-manual .manual-search .search-form {
-    margin: 5px 5px 10px 5px;
+    margin: 5px 5px 5px 5px;
     position: relative;
 }
 
@@ -503,7 +503,7 @@ table>tbody>tr:hover {
     line-height: 24px
 }
 
-.m-manual .manual-aigc .m-copyright {
+.m-manual .manual-aigc .aigc-input {
     border-top: 0;
     background: #fafafa;
     border-top: 1px solid #ccc;
@@ -516,7 +516,6 @@ table>tbody>tr:hover {
     z-index: 999;
     height: auto;
     width: 100%;
-    padding: 5px 0;
     text-align: center;
     line-height: 24px
 }

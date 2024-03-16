@@ -136,6 +136,7 @@ func RegisterModel() {
 		new(models.TeamRelationship),
 		new(models.Itemsets),
 		new(models.Comment),
+		new(models.AigcChatMessage),
 		new(models.WorkWeixinAccount),
 		new(models.DingTalkAccount),
 	)

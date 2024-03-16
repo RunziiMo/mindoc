@@ -236,46 +236,43 @@
 
             </div>
         </div>
+        <!-- aigc 分析文档 -->
         <div class="manual-aigc">
             <div class="manual-tab">
-                <div class="tab-navg">
-                    <span data-mode="search" class="navg-item"><i class="fa fa-search"></i><b class="text">{{i18n .Lang "doc.search"}}</b></span>
-                    <span style="float: right;display: inline-block;padding: 5px;cursor: pointer;">
-                        <i class="fa fa-angle-left" style="font-size: 20px;padding-right: 5px;"></i>
-                        <span class="pull-right" style="padding-top: 4px;">{{i18n .Lang "doc.expand"}}</span>
-                    </span>
-                </div>
                 <div class="tab-util">
                     <span class="manual-fullscreen-switch">
                         <b class="open fa fa-angle-left" title="{{i18n .Lang "doc.expand"}}"></b>
                         <b class="close fa fa-angle-right" title="{{i18n .Lang "doc.close"}}"></b>
                     </span>
                 </div>
-                <div class="tab-wrap">
-                    <div class="tab-item manual-catalog">
-                    </div>
-                    <div class="tab-item manual-search">
-                        <div class="search-container">
-                            <div class="search-form">
-                                <form id="searchForm" action="{{urlfor "DocumentController.Search" ":key" .Model.Identify}}" method="post">
-                                    <div class="form-group">
-                                        <input type="search" placeholder="{{i18n .Lang "message.search_placeholder"}}" class="form-control" name="keyword">
-                                        <button type="submit" class="btn btn-default btn-search" id="btnSearch">
-                                            <i class="fa fa-search"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="search-result">
-                                <div class="search-empty">
-                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
-                                    <b class="text">{{i18n .Lang "message.no_search_result"}}</b>
-                                </div>
-                                <ul class="search-list">
-                                </ul>
-                            </div>
+                <div class="aigc-dialog">
+                    <div class="comment-list" id="messageList">
+                        {{range $i, $c := .Messages.List}}
+                        <div class="comment-item" data-id="{{$c.MessageId}}">
+                            <p class="info"><a class="name">{{$c.Author}}</a><span class="date">{{date $c.Date "Y-m-d H:i:s"}}</span></p>
+                            <div class="content">{{$c.Content}}</div>
+                            <p class="util">
+                                <span class="operate {{if eq $c.ShowDel 1}}toggle{{end}}">
+                                    <span class="number">{{$c.Index}}#</span>
+                                    {{if eq $c.ShowDel 1}}
+                                    <i class="delete e-delete glyphicon glyphicon-remove" style="color:red" onclick="onDelMessage({{$c.MessageId}})"></i>
+                                    {{end}}
+                                </span>
+                            </p>
                         </div>
+                        {{end}}
                     </div>
+                </div>
+                <div class="aigc-input manual-search">
+                    <form id="aigcForm" class="search-form" action="{{urlfor "AigcController.Chat"}}" method="post">
+                        <div class="form-group form-horizontal">
+                            <input type="search" placeholder="{{i18n .Lang "message.aigc_chat_placeholder"}}" class="form-control" name="prompt">
+                            <input type="hidden" name="doc_id" id="doc_id" value="{{.DocumentId}}">
+                            <button type="submit" class="btn btn-default btn-search" id="btnAigcChat">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

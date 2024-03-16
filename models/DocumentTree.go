@@ -26,7 +26,7 @@ type DocumentSelected struct {
 	Disabled bool `json:"disabled"`
 }
 
-//获取项目的文档树状结构
+// 获取项目的文档树状结构
 func (item *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
 	o := orm.NewOrm()
 
@@ -94,7 +94,7 @@ func (item *Document) CreateDocumentTreeForHtml(bookId, selectedId int) (string,
 
 }
 
-//使用递归的方式获取指定ID的顶级ID
+// 使用递归的方式获取指定ID的顶级ID
 func getSelectedNode(array []*DocumentTree, parent_id int) int {
 
 	for _, item := range array {

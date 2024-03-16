@@ -40,6 +40,8 @@ var (
 
 	ErrCommentClosed          = errors.New("评论已关闭")
 	ErrCommentContentNotEmpty = errors.New("评论内容不能为空")
+
+	ErrMessageContentNotEmpty = errors.New("消息内容不能为空")
 )
 
 type Error struct {
