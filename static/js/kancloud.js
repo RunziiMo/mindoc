@@ -147,6 +147,17 @@ function loadMessage($message, $docid) {
     html += "</span>";
     html += "</p>";
     html += "</div>";
+    html += "<div class=\"comment-item\" data-id=\"" + $message.message_id + "\">";
+    html += "<p class=\"info\"><a class=\"name\">" + $message.author + "</a><span class=\"date\">" + timeFormat($message.date) + "</span></p>";
+    html += "<div class=\"content\">" + $message.response + "</div>";
+    html += "<p class=\"util\">";
+    if ($message.show_del == 1) html += "<span class=\"operate toggle\">";
+    else html += "<span class=\"operate\">";
+    html += "<span class=\"number\">" + $message.index + "#</span>";
+    if ($message.show_del == 1) html += "<i class=\"delete e-delete glyphicon glyphicon-remove\" style=\"color:red\" onclick=\"onDelMessage(" + $message.message_id + ")\"></i>";
+    html += "</span>";
+    html += "</p>";
+    html += "</div>";
     console.log(html)
     $("#messageList").append(html);
 }
