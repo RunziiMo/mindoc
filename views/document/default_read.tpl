@@ -260,6 +260,18 @@
                                 </span>
                             </p>
                         </div>
+                        <div class="comment-item" data-id="{{$c.MessageId}}">
+                            <p class="info"><a class="name">{{$c.Author}}</a><span class="date">{{date $c.Date "Y-m-d H:i:s"}}</span></p>
+                            <div class="content">{{$c.Response}}</div>
+                            <p class="util">
+                                <span class="operate {{if eq $c.ShowDel 1}}toggle{{end}}">
+                                    <span class="number">{{$c.Index}}#</span>
+                                    {{if eq $c.ShowDel 1}}
+                                    <i class="delete e-delete glyphicon glyphicon-remove" style="color:red" onclick="onDelMessage({{$c.MessageId}})"></i>
+                                    {{end}}
+                                </span>
+                            </p>
+                        </div>
                         {{end}}
                     </div>
                 </div>

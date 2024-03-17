@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -259,7 +259,7 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logs.Error("读取接口返回值失败 -> ", urlStr, account, err)
 		return nil, ErrHTTPServerFail

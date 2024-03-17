@@ -219,15 +219,12 @@ func (c *DocumentController) Read() {
 			data.IsMarkdown = true
 		}
 		c.JsonResult(0, "ok", data)
-	} else {
-		c.Data["DocumentId"] = doc.DocumentId
-		c.Data["DocIdentify"] = doc.Identify
-		if bookResult.IsDisplayComment {
-			// 获取评论、分页
-			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
-			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
-			c.Data["Page"] = page
-		}
+	}
+	if bookResult.IsDisplayComment {
+		// 获取评论、分页
+		comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+		page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
+		c.Data["Page"] = page
 	}
 
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, doc.DocumentId)
@@ -245,6 +242,8 @@ func (c *DocumentController) Read() {
 	c.Data["Title"] = doc.DocumentName
 	c.Data["Content"] = template.HTML(doc.Release)
 	c.Data["ViewCount"] = doc.ViewCount
+	c.Data["DocumentId"] = doc.DocumentId
+	c.Data["DocIdentify"] = doc.Identify
 	c.Data["FoldSetting"] = "closed"
 	if bookResult.Editor == EditorCherryMarkdown {
 		c.Data["MarkdownTheme"] = doc.MarkdownTheme
