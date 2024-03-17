@@ -83,6 +83,11 @@
                                 <p class="text">{{i18n $.Lang "message.project_desc_desc"}}</p>
                             </div>
                             <div class="form-group">
+                                <label>{{i18n $.Lang "blog.project_aigc_function"}}</label>
+                                <textarea rows="3" class="form-control" name="aigc_function" style="height: 90px" placeholder="{{i18n $.Lang "blog.project_aigc_function"}}">{{.Model.AigcFunction}}</textarea>
+                                <p class="text">{{i18n $.Lang "blog.project_aigc_function_desc"}}</p>
+                            </div>
+                            <div class="form-group">
                                 <label>{{i18n $.Lang "blog.text_editor"}}</label>
                                 <div class="radio">
                                     <label class="radio-inline">

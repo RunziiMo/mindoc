@@ -261,7 +261,7 @@
                             </p>
                         </div>
                         <div class="comment-item" data-id="{{$c.MessageId}}">
-                            <p class="info"><a class="name">{{$c.Author}}</a><span class="date">{{date $c.Date "Y-m-d H:i:s"}}</span></p>
+                            <p class="info"><a class="name">AI</a><span class="date">{{date $c.Date "Y-m-d H:i:s"}}</span></p>
                             <div class="content">{{$c.Response}}</div>
                             <p class="util">
                                 <span class="operate {{if eq $c.ShowDel 1}}toggle{{end}}">
@@ -276,6 +276,18 @@
                     </div>
                 </div>
                 <div class="aigc-input manual-search">
+                    {{range $i, $function := .AigcFunctions}}
+                    <form class="search-form" action="{{urlfor "AigcController.Chat"}}" method="post">
+                        <div class="form-group form-horizontal">
+                            <input type="hidden" name="prompt" value="{{$function}}">
+                            <input type="hidden" name="url_suffix" value="{{$function}}">
+                            <input type="hidden" name="doc_id" value="{{$.DocumentId}}">
+                            <button type="submit" class="btn btn-default">
+                                {{$function}}
+                            </button>
+                        </div>
+                    </form>
+                    {{end}}
                     <form id="aigcForm" class="search-form" action="{{urlfor "AigcController.Chat"}}" method="post">
                         <div class="form-group form-horizontal">
                             <input type="search" placeholder="{{i18n .Lang "message.aigc_chat_placeholder"}}" class="form-control" name="prompt">

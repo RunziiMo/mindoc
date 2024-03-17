@@ -64,25 +64,8 @@ func (c *DocumentController) Index() {
 		if err == nil {
 			selected = doc.DocumentId
 			c.Data["Title"] = doc.DocumentName
-			c.Data["Content"] = template.HTML(doc.Release)
-			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
+			c.prepareData(bookResult, doc)
 			c.Data["FoldSetting"] = "first"
-			c.Data["DocumentId"] = doc.DocumentId
-
-			if bookResult.Editor == EditorCherryMarkdown {
-				c.Data["MarkdownTheme"] = doc.MarkdownTheme
-			}
-
-			if bookResult.IsDisplayComment {
-				// 获取评论、分页
-				comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
-				page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
-				c.Data["Page"] = page
-			}
-
-			messages, count, _ := models.NewAigcChatMessage().QueryByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
-			page := pagination.PageUtil(int(count), 1, conf.PageSize, messages)
-			c.Data["Messages"] = page
 		}
 	} else {
 		c.Data["Title"] = i18n.Tr(c.Lang, "blog.summary")
@@ -91,7 +74,6 @@ func (c *DocumentController) Index() {
 	}
 
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, selected)
-
 	if err != nil {
 		if err == orm.ErrNoRows {
 			c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.no_doc_in_cur_proj"))
@@ -220,24 +202,27 @@ func (c *DocumentController) Read() {
 		}
 		c.JsonResult(0, "ok", data)
 	}
+	c.prepareData(bookResult, doc)
+}
+
+func (c *DocumentController) prepareData(bookResult *models.BookResult, doc *models.Document) {
 	if bookResult.IsDisplayComment {
 		// 获取评论、分页
 		comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
 		page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
 		c.Data["Page"] = page
 	}
-
+	messages, count, _ := models.NewAigcChatMessage().QueryByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+	page := pagination.PageUtil(int(count), 1, conf.PageSize, messages)
+	c.Data["Messages"] = page
+	c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
+	c.Data["Model"] = bookResult
+	c.Data["AigcFunctions"] = strings.Split(bookResult.AigcFunction, ";")
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, doc.DocumentId)
-
 	if err != nil && err != orm.ErrNoRows {
 		logs.Error("生成项目文档树时出错 ->", err)
-
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.build_doc_tree_error"))
 	}
-
-	c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
-
-	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = doc.DocumentName
 	c.Data["Content"] = template.HTML(doc.Release)

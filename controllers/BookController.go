@@ -142,6 +142,7 @@ func (c *BookController) SaveBook() {
 
 	bookName := strings.TrimSpace(c.GetString("book_name"))
 	description := strings.TrimSpace(c.GetString("description", ""))
+	aigc_function := strings.TrimSpace(c.GetString("aigc_function", ""))
 	commentStatus := c.GetString("comment_status")
 	//tag := strings.TrimSpace(c.GetString("label"))
 	editor := strings.TrimSpace(c.GetString("editor"))
@@ -170,6 +171,7 @@ func (c *BookController) SaveBook() {
 
 	book.BookName = bookName
 	book.Description = description
+	book.AigcFunction = aigc_function
 	book.CommentStatus = commentStatus
 	book.Publisher = publisher
 	//book.Label = tag
@@ -649,6 +651,7 @@ func (c *BookController) Import() {
 
 	book.Editor = "markdown"
 	book.Theme = "default"
+	book.IsUseFirstDocument = 1
 
 	if strings.EqualFold(ext, ".zip") {
 		go book.ImportBook(tempPath, c.Lang)

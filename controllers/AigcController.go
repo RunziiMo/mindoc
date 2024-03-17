@@ -67,7 +67,7 @@ func (c *AigcController) Chat() {
 	body := map[string]any{
 		"data": doc.Markdown,
 	}
-	request := httplib.Post(inferenceServerUrl + "/api/get_entity/")
+	request := httplib.Post(inferenceServerUrl + c.GetString("url_suffix", "/api/chat"))
 	request.JSONBody(body)
 	request.Header("Content-Type", "application/json").Response()
 	m.Response, err = request.String()

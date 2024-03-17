@@ -48,6 +48,8 @@ type Book struct {
 	OrderIndex int `orm:"column(order_index);type(int);default(0);description(排序)" json:"order_index"`
 	// Description 项目描述.
 	Description string `orm:"column(description);size(2000);description(项目描述)" json:"description"`
+	// AigcFunction 项目AIGC能力列表
+	AigcFunction string `orm:"column(aigc_function);size(2000);aigc_function(项目AI能力)" json:"aigc_function"`
 	//发行公司
 	Publisher string `orm:"column(publisher);size(500);description(发行公司)" json:"publisher"`
 	Label     string `orm:"column(label);size(500);description(所属标签)" json:"label"`

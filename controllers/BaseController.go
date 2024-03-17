@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"os"
 	"strings"
 	"time"
 
 	"html/template"
-	"io/ioutil"
 	"path/filepath"
 
 	"github.com/beego/beego/v2/core/logs"
@@ -76,7 +76,7 @@ func (c *BaseController) Prepare() {
 	}
 	c.Data["HighlightStyle"] = web.AppConfig.DefaultString("highlight_style", "github")
 
-	if b, err := ioutil.ReadFile(filepath.Join(web.BConfig.WebConfig.ViewsPath, "widgets", "scripts.tpl")); err == nil {
+	if b, err := os.ReadFile(filepath.Join(web.BConfig.WebConfig.ViewsPath, "widgets", "scripts.tpl")); err == nil {
 		c.Data["Scripts"] = template.HTML(string(b))
 	}
 

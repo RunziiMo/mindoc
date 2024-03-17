@@ -40,6 +40,7 @@ type BookResult struct {
 	Identify       string    `json:"identify"`
 	OrderIndex     int       `json:"order_index"`
 	Description    string    `json:"description"`
+	AigcFunction   string    `json:"aigc_function"`
 	Publisher      string    `json:"publisher"`
 	PrivatelyOwned int       `json:"privately_owned"`
 	PrivateToken   string    `json:"private_token"`
@@ -193,6 +194,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.Identify = book.Identify
 	m.OrderIndex = book.OrderIndex
 	m.Description = strings.Replace(book.Description, "\r\n", "<br/>", -1)
+	m.AigcFunction = book.AigcFunction
 	m.PrivatelyOwned = book.PrivatelyOwned
 	m.PrivateToken = book.PrivateToken
 	m.BookPassword = book.BookPassword
