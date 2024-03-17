@@ -166,7 +166,7 @@
             <div class="m-copyright">
                 <p>
                     <div id="view_count">{{i18n .Lang "doc.view_count"}}：{{.ViewCount}}</div>
-                    {{i18n $.Lang "doc.doc_publish_by"}} <a href="https://www.iminho.me" target="_blank">MinDoc</a> {{i18n $.Lang "doc.doc_publish"}}
+                    {{i18n $.Lang "doc.doc_publish_by"}} <a href="{{urlfor "HomeController.Index"}}" target="_blank">AiDoc</a> {{i18n $.Lang "doc.doc_publish"}}
                 </p>
             </div>
         </div>
@@ -279,7 +279,7 @@
                     <form id="aigcForm" class="search-form" action="{{urlfor "AigcController.Chat"}}" method="post">
                         <div class="form-group form-horizontal">
                             <input type="search" placeholder="{{i18n .Lang "message.aigc_chat_placeholder"}}" class="form-control" name="prompt">
-                            <input type="hidden" name="doc_id" id="doc_id" value="{{.DocumentId}}">
+                            <input type="hidden" name="doc_id" id="aigc_doc_id" value="{{.DocumentId}}">
                             <button type="submit" class="btn btn-default btn-search" id="btnAigcChat">
                                 <i class="fa fa-search"></i>
                             </button>

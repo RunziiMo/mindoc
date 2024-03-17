@@ -191,6 +191,7 @@ function renderPage($data) {
     $("#article-info").text($data.doc_info);
     $("#view_count").text("阅读次数：" + $data.view_count);
     $("#doc_id").val($data.doc_id);
+    $("#aigc_doc_id").val($data.doc_id);
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
     }
