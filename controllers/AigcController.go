@@ -58,11 +58,6 @@ func (c *AigcController) Chat() {
 	m.IPAddress = strings.Split(m.IPAddress, ":")[0]
 	m.Date = time.Now()
 	m.Content = prompt
-	err = m.Insert()
-	if err != nil {
-		logs.Error("failed to insert chat message %v", err)
-		c.JsonResult(1, "消息错误", err)
-	}
 
 	inferenceServerUrl, err := web.AppConfig.String("inference_server_host")
 	if err != nil {
@@ -72,7 +67,7 @@ func (c *AigcController) Chat() {
 	body := map[string]any{
 		"data": doc.Markdown,
 	}
-	request := httplib.Post(inferenceServerUrl + "/api/get_entity")
+	request := httplib.Post(inferenceServerUrl + "/api/get_entity/")
 	request.JSONBody(body)
 	request.Header("Content-Type", "application/json").Response()
 	m.Response, err = request.String()
@@ -81,7 +76,12 @@ func (c *AigcController) Chat() {
 		c.JsonResult(1, "访问推理服务失败", err)
 	}
 	logs.Trace("inference result %s", m.Response)
-	m.Update("response")
+
+	err = m.Insert()
+	if err != nil {
+		logs.Error("failed to insert chat message %v", err)
+		c.JsonResult(1, err.Error(), err)
+	}
 
 	c.JsonResult(0, "ok", m)
 }
