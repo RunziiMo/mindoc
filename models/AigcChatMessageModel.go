@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -66,12 +67,13 @@ func (m *AigcChatMessage) CanDelete(user_memberid int, user_bookrole conf.BookRo
 func (m *AigcChatMessage) QueryByDocumentId(doc_id, page, pagesize int, member *Member) (messages []*AigcChatMessage, count int64, ret_page int) {
 	doc, err := NewDocument().Find(doc_id)
 	if err != nil {
+		logs.Error("query document %d %v", doc_id, err)
 		return
 	}
 
 	o := orm.NewOrm()
 	count, _ = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).Count()
-	if -1 == page { // 请求最后一页
+	if page == -1 { // 请求最后一页
 		var total int = int(count)
 		if total%pagesize == 0 {
 			page = total / pagesize

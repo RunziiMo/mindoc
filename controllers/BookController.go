@@ -709,6 +709,17 @@ func (c *BookController) Import() {
 //	}
 //}
 
+// 获取项目
+func (c *BookController) Get() {
+	c.Prepare()
+	book, err := c.IsPermission()
+	if err != nil {
+		c.JsonResult(6002, err.Error())
+		return
+	}
+	c.JsonResult(0, "ok", book)
+}
+
 // Delete 删除项目.
 func (c *BookController) Delete() {
 	c.Prepare()

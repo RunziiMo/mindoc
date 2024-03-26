@@ -232,6 +232,7 @@ func init() {
 	web.Router("/api/template/add", &controllers.TemplateController{}, "post:Add")
 	web.Router("/api/template/remove", &controllers.TemplateController{}, "post:Delete")
 
+	web.Router("/api/book/:identify", &controllers.BookController{}, "get:Get")
 	web.Router("/api/attach/remove/", &controllers.DocumentController{}, "post:RemoveAttachment")
 	web.Router("/api/:key/edit/?:id", &controllers.DocumentController{}, "*:Edit")
 	web.Router("/api/upload", &controllers.DocumentController{}, "post:Upload")
@@ -240,6 +241,8 @@ func init() {
 	web.Router("/api/:key/content/?:id", &controllers.DocumentController{}, "*:Content")
 	web.Router("/api/:key/compare/:id", &controllers.DocumentController{}, "*:Compare")
 	web.Router("/api/search/user/:key", &controllers.SearchController{}, "*:User")
+	web.CtrlGet("/api/aigc/messages", (*controllers.AigcController).ListChatMessages)
+	web.CtrlDelete("/api/message/:id", (*controllers.AigcController).DeleteMessage)
 
 	web.Router("/history/get", &controllers.DocumentController{}, "get:History")
 	web.Router("/history/delete", &controllers.DocumentController{}, "*:DeleteHistory")
@@ -259,7 +262,8 @@ func init() {
 	web.Router("/comment/lists", &controllers.CommentController{}, "get:Lists")
 	web.Router("/comment/index", &controllers.CommentController{}, "*:Index")
 
-	web.Router("/aigc/chat", &controllers.AigcController{}, "post:Chat")
+	web.CtrlPost("/aigc/chat", (*controllers.AigcController).DocChat)
+	web.CtrlPost("/aigc/analyze", (*controllers.AigcController).DocAnalyze)
 	web.Router("/aigc/delete", &controllers.AigcController{}, "post:Delete")
 
 	web.Router("/search", &controllers.SearchController{}, "get:Index")

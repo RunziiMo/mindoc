@@ -366,6 +366,7 @@ func ResolveCommand(args []string) {
 
 	_ = os.MkdirAll(uploads, 0666)
 
+	web.BConfig.WebConfig.StaticDir["/assets"] = filepath.Join(conf.WorkingDirectory, "assets")
 	web.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
 	web.BConfig.WebConfig.StaticDir["/uploads"] = uploads
 	web.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")

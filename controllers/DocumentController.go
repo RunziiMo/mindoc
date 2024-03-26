@@ -56,6 +56,7 @@ func (c *DocumentController) Index() {
 	bookResult := c.isReadable(identify, token)
 
 	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
+	c.TplName = "document/index.html"
 
 	selected := 0
 
@@ -140,6 +141,7 @@ func (c *DocumentController) Read() {
 	bookResult := c.isReadable(identify, token)
 
 	c.TplName = fmt.Sprintf("document/%s_read.tpl", bookResult.Theme)
+	c.TplName = "document/index.html"
 
 	doc := models.NewDocument()
 	if docId, err := strconv.Atoi(id); err == nil {
@@ -760,7 +762,12 @@ func (c *DocumentController) Content() {
 	}
 
 	if docId <= 0 {
-		c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
+		doc, err := models.NewBookResult().FindFirstDocumentByBookId(bookId)
+		if err == nil {
+			docId = doc.DocumentId
+		} else {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
+		}
 	}
 
 	if c.Ctx.Input.IsPost() {
