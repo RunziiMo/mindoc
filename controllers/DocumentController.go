@@ -53,7 +53,11 @@ func (c *DocumentController) Index() {
 		return
 	}
 
-	bookResult := c.isReadable(identify, token)
+	bookResult, readable := c.isReadable(identify, token)
+	if !readable {
+		c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
+		return
+	}
 
 	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
 	c.TplName = "document/index.html"
@@ -86,7 +90,6 @@ func (c *DocumentController) Index() {
 	c.Data["IS_DOCUMENT_INDEX"] = true
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
-
 }
 
 // CheckPassword : Handles password verification for private documents,
@@ -138,7 +141,11 @@ func (c *DocumentController) Read() {
 		return
 	}
 
-	bookResult := c.isReadable(identify, token)
+	bookResult, readable := c.isReadable(identify, token)
+	if !readable {
+		c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
+		return
+	}
 
 	c.TplName = fmt.Sprintf("document/%s_read.tpl", bookResult.Theme)
 	c.TplName = "document/index.html"
@@ -878,22 +885,13 @@ func (c *DocumentController) Export() {
 	}
 	if !conf.GetEnableExport() {
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "export_func_disable"))
+		return
 	}
 
-	bookResult := models.NewBookResult()
-	if c.Member != nil && c.Member.IsAdministrator() {
-		book, err := models.NewBook().FindByIdentify(identify)
-		if err != nil {
-			if err == orm.ErrNoRows {
-				c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.item_not_exist"))
-			} else {
-				logs.Error("查找项目时出错 ->", err)
-				c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.system_error"))
-			}
-		}
-		bookResult = models.NewBookResult().ToBookResult(*book)
-	} else {
-		bookResult = c.isReadable(identify, token)
+	bookResult, readable := c.isReadable(identify, token)
+	if !readable {
+		c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
+		return
 	}
 	if !bookResult.IsDownload {
 		c.ShowErrorPage(200, i18n.Tr(c.Lang, "message.cur_project_export_func_disable"))
@@ -1006,7 +1004,11 @@ func (c *DocumentController) Search() {
 		return
 	}
 
-	bookResult := c.isReadable(identify, token)
+	bookResult, readable := c.isReadable(identify, token)
+	if !readable {
+		c.JsonResult(403, i18n.Tr(c.Lang, "message.no_permission"))
+		return
+	}
 
 	docs, err := models.NewDocumentSearchResult().SearchDocument(keyword, bookResult.BookId)
 	if err != nil {
@@ -1279,23 +1281,27 @@ func (c *DocumentController) Compare() {
 }
 
 // 判断用户是否可以阅读文档
-func (c *DocumentController) isReadable(identify, token string) *models.BookResult {
+func (c *DocumentController) isReadable(identify, token string) (*models.BookResult, bool) {
 	book, err := models.NewBook().FindByFieldFirst("identify", identify)
-
 	if err != nil {
 		logs.Error(err)
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.item_not_exist"))
+		return nil, false
 	}
 	bookResult := models.NewBookResult().ToBookResult(*book)
-	isOk := false
 
+	// 是项目管理员或者参与者，或是团队成员
 	if c.isUserLoggedIn() {
 		roleId, err := models.NewBook().FindForRoleId(book.BookId, c.Member.MemberId)
 		if err == nil {
-			isOk = true
-			bookResult.MemberId = c.Member.MemberId
 			bookResult.RoleId = roleId
+			bookResult.MemberId = c.Member.MemberId
+			return bookResult, true
 		}
+	}
+	// 网站管理员可以直接访问
+	if c.isUserLoggedIn() && c.Member.IsAdministrator() {
+		return bookResult, true
 	}
 
 	/* 	私有项目：
@@ -1315,24 +1321,17 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 	 *   4. 使用token访问如果不通过，则提示输入密码
 	 */
 	if book.PrivatelyOwned == 1 {
-		if c.isUserLoggedIn() && c.Member.IsAdministrator() {
-			return bookResult
-		}
-		if isOk { // Project participant.
-			return bookResult
-		}
-
 		// Use session in preference.
 		if tokenOrPassword, ok := c.GetSession(identify).(string); ok {
 			if strings.EqualFold(book.PrivateToken, tokenOrPassword) || strings.EqualFold(book.BookPassword, tokenOrPassword) {
-				return bookResult
+				return bookResult, true
 			}
 		}
 
 		// Next: Session not exist or not correct.
 		if book.PrivateToken != "" && book.PrivateToken == token {
 			c.SetSession(identify, token)
-			return bookResult
+			return bookResult, true
 		} else if book.BookPassword != "" {
 			// Send a page for inputting password.
 			// For verification, see function DocumentController.CheckPassword
@@ -1350,7 +1349,7 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 		}
 	}
 
-	return bookResult
+	return nil, false
 }
 
 func promptUserToLogIn(c *DocumentController) {

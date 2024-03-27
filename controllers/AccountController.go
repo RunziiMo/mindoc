@@ -4,10 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/mindoc-org/mindoc/cache"
-	"github.com/mindoc-org/mindoc/utils/auth2"
-	"github.com/mindoc-org/mindoc/utils/auth2/dingtalk"
-	"github.com/mindoc-org/mindoc/utils/auth2/wecom"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -15,6 +11,11 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/mindoc-org/mindoc/cache"
+	"github.com/mindoc-org/mindoc/utils/auth2"
+	"github.com/mindoc-org/mindoc/utils/auth2/dingtalk"
+	"github.com/mindoc-org/mindoc/utils/auth2/wecom"
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
@@ -1205,7 +1206,8 @@ func (c *AccountController) Register() {
 		member.Email = email
 		member.Status = 0
 		if err := member.Add(); err != nil {
-			c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed_register"))
+			c.JsonResult(6006, err.Error())
+			// c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed_register"))
 		}
 
 		c.JsonResult(0, "ok", member)
