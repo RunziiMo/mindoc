@@ -732,41 +732,37 @@ func (c *DocumentController) Delete() {
 	c.JsonResult(0, "ok")
 }
 
+// 获取项目
+func (c *DocumentController) GetBook() {
+	c.Prepare()
+	identify := c.GetString("identify")
+	token := c.GetString("token")
+	bookResult, readable := c.isReadable(identify, token)
+	if !readable {
+		c.JsonResult(6002, i18n.Tr(c.Lang, "message.item_not_exist_or_no_permit"))
+		return
+	}
+	c.JsonResult(0, "ok", bookResult)
+}
+
 // 获取文档内容
 func (c *DocumentController) Content() {
 	c.Prepare()
 
 	identify := c.Ctx.Input.Param(":key")
 	docId, err := c.GetInt("doc_id")
+	token := c.GetString("token")
 
 	if err != nil {
 		docId, _ = strconv.Atoi(c.Ctx.Input.Param(":id"))
 	}
-
-	bookId := 0
-	autoRelease := false
-
-	// 如果是超级管理员，则忽略权限
-	if c.Member.IsAdministrator() {
-		book, err := models.NewBook().FindByFieldFirst("identify", identify)
-		if err != nil || book == nil {
-			c.JsonResult(6002, i18n.Tr(c.Lang, "message.item_not_exist_or_no_permit"))
-			return
-		}
-
-		bookId = book.BookId
-		autoRelease = book.AutoRelease == 1
-	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
-
-		if err != nil || bookResult.RoleId == conf.BookObserver {
-			logs.Error("项目不存在或权限不足 -> ", err)
-			c.JsonResult(6002, i18n.Tr(c.Lang, "message.item_not_exist_or_no_permit"))
-		}
-
-		bookId = bookResult.BookId
-		autoRelease = bookResult.AutoRelease
+	bookResult, readable := c.isReadable(identify, token)
+	if !readable {
+		c.JsonResult(6002, i18n.Tr(c.Lang, "message.item_not_exist_or_no_permit"))
+		return
 	}
+	bookId := bookResult.BookId
+	autoRelease := bookResult.AutoRelease
 
 	if docId <= 0 {
 		doc, err := models.NewBookResult().FindFirstDocumentByBookId(bookId)
@@ -1346,10 +1342,11 @@ func (c *DocumentController) isReadable(identify, token string) (*models.BookRes
 			// No permission to access this book.
 			logs.Info("尝试访问文档但权限不足 ->", identify, token)
 			c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
+			return nil, false
 		}
 	}
 
-	return nil, false
+	return bookResult, true
 }
 
 func promptUserToLogIn(c *DocumentController) {

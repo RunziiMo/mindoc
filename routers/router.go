@@ -232,7 +232,7 @@ func init() {
 	web.Router("/api/template/add", &controllers.TemplateController{}, "post:Add")
 	web.Router("/api/template/remove", &controllers.TemplateController{}, "post:Delete")
 
-	web.Router("/api/book/:identify", &controllers.BookController{}, "get:Get")
+	web.CtrlGet("/api/book/:identify", (*controllers.DocumentController).GetBook)
 	web.Router("/api/attach/remove/", &controllers.DocumentController{}, "post:RemoveAttachment")
 	web.Router("/api/:key/edit/?:id", &controllers.DocumentController{}, "*:Edit")
 	web.Router("/api/upload", &controllers.DocumentController{}, "post:Upload")
