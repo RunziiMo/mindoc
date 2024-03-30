@@ -748,13 +748,7 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 				doc := NewDocument()
 				doc.BookId = book.BookId
 				doc.MemberId = book.MemberId
-				docIdentify := strings.Replace(strings.TrimPrefix(path, tempPath+"/"), "/", "-", -1)
-
-				if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
-					docIdentify = "import-" + docIdentify
-				}
-
-				doc.Identify = docIdentify
+				doc.Identify = strings.Replace(strings.TrimPrefix(path, tempPath+"/"), "/", "-", -1)
 				//匹配图片，如果图片语法是在代码块中，这里同样会处理
 				re := regexp.MustCompile(`!\[(.*?)\]\((.*?)\)`)
 				markdown, err := filetil.ReadFileAndIgnoreUTF8BOM(path)
@@ -851,10 +845,7 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 							//如果链接是Markdown文件，则生成文档标识,否则，将目标文件复制到项目目录
 							if strings.EqualFold(ext, ".md") || strings.EqualFold(ext, ".markdown") {
 								docIdentify := strings.Replace(strings.TrimPrefix(strings.Replace(linkPath, "\\", "/", -1), tempPath+"/"), "/", "-", -1)
-								//logs.Info(originalLink, "|", linkPath, "|", docIdentify)
-								if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
-									docIdentify = "import-" + docIdentify
-								}
+								logs.Info(originalLink, "|", linkPath, "|", docIdentify)
 								docIdentify = strings.TrimSuffix(docIdentify, "-README.md")
 
 								link = strings.TrimSuffix(link, originalLink+")") + conf.URLFor("DocumentController.Read", ":key", book.Identify, ":id", docIdentify) + ")"
@@ -905,10 +896,6 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 				parentIdentify := strings.Replace(strings.Trim(strings.TrimSuffix(strings.TrimPrefix(path, tempPath), info.Name()), "/"), "/", "-", -1)
 
 				if parentIdentify != "" {
-
-					if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, parentIdentify); !ok || err != nil {
-						parentIdentify = "import-" + parentIdentify
-					}
 					if id, ok := docMap[parentIdentify]; ok {
 						parentId = id
 					}
@@ -931,7 +918,7 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 					logs.Error(doc.DocumentId, err)
 				}
 				if isInsert {
-					docMap[docIdentify] = doc.DocumentId
+					docMap[doc.Identify] = doc.DocumentId
 				}
 			}
 		} else {
@@ -939,9 +926,6 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 			if filetil.HasFileOfExt(path, []string{".md", ".markdown"}) {
 				logs.Info("正在处理 =>", path, info.Name())
 				identify := strings.Replace(strings.Trim(strings.TrimPrefix(path, tempPath), "/"), "/", "-", -1)
-				if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, identify); !ok || err != nil {
-					identify = "import-" + identify
-				}
 
 				parentDoc := NewDocument()
 
@@ -1005,16 +989,14 @@ func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
 	doc := NewDocument()
 	doc.BookId = book.BookId
 	doc.MemberId = book.MemberId
-	docIdentify := strings.Replace(strings.TrimPrefix(docxPath, os.TempDir()+"/"), "/", "-", -1)
-
-	if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
-		docIdentify = "import-" + docIdentify
-	}
-
-	doc.Identify = docIdentify
+	doc.Identify = strings.Replace(strings.TrimPrefix(docxPath, os.TempDir()+"/"), "/", "-", -1)
 
 	if doc.Markdown, err = utils.Docx2md(docxPath, false); err != nil {
 		logs.Error("导入doc项目转换异常 => ", err)
+		return err
+	}
+	if err = filetil.CopyFile(docxPath, filepath.Join(conf.WorkingDirectory, "documents", doc.Identify)); err != nil {
+		logs.Error("拷贝文件失败 => ", err)
 		return err
 	}
 

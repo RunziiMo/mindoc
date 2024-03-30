@@ -363,8 +363,9 @@ func ResolveCommand(args []string) {
 
 	conf.AutoLoadDelay = web.AppConfig.DefaultInt("config_auto_delay", 0)
 	uploads := conf.WorkingDir("uploads")
-
 	_ = os.MkdirAll(uploads, 0666)
+	documents := conf.WorkingDir("documents")
+	_ = os.MkdirAll(documents, 0666)
 
 	web.BConfig.WebConfig.StaticDir["/assets"] = filepath.Join(conf.WorkingDirectory, "assets")
 	web.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")

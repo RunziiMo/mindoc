@@ -247,6 +247,14 @@ func (c *DocumentController) prepareData(bookResult *models.BookResult, doc *mod
 	} else if doc.IsOpen == 2 {
 		c.Data["FoldSetting"] = "empty"
 	}
+	docxPath := strings.ReplaceAll(doc.Identify, "-", string(os.PathSeparator))
+	docxPath = filepath.Join(os.TempDir(), docxPath)
+	destPath := filepath.Join(conf.WorkingDirectory, "documents", doc.Identify)
+	if filetil.FileExists(docxPath) && !filetil.FileExists(destPath) {
+		if err = filetil.CopyFile(docxPath, destPath); err != nil {
+			logs.Error("拷贝文件失败 => ", err)
+		}
+	}
 }
 
 // 编辑文档
@@ -743,6 +751,51 @@ func (c *DocumentController) GetBook() {
 		return
 	}
 	c.JsonResult(0, "ok", bookResult)
+}
+
+// 下载文档
+func (c *DocumentController) DownloadDocument() {
+	c.Prepare()
+	bookIdentify := c.GetString(":identify")
+	docId, err := c.GetInt("doc_id")
+	token := c.GetString("token")
+	if err != nil {
+		docId, _ = strconv.Atoi(c.GetString(":id"))
+	}
+	bookResult, readable := c.isReadable(bookIdentify, token)
+	if !readable {
+		c.JsonResult(6002, i18n.Tr(c.Lang, "message.item_not_exist_or_no_permit"))
+		return
+	}
+	bookId := bookResult.BookId
+
+	if docId <= 0 {
+		doc, err := models.NewBookResult().FindFirstDocumentByBookId(bookId)
+		if err == nil {
+			docId = doc.DocumentId
+		} else {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
+		}
+	}
+
+	doc, err := models.NewDocument().Find(docId)
+	if err != nil {
+		c.JsonResult(6003, i18n.Tr(c.Lang, "message.doc_not_exist"))
+		return
+	}
+	if doc.BookId != bookId {
+		c.JsonResult(6008, i18n.Tr(c.Lang, "message.doc_not_belong_project"))
+		return
+	}
+
+	docFilePath := filepath.Join(conf.WorkingDirectory, "documents", doc.Identify)
+	if !filetil.FileExists(docFilePath) {
+		logs.Error("文档文件不存在 %s", docFilePath)
+		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.system_error"))
+		return
+	}
+	c.Ctx.Output.Download(docFilePath, doc.Identify)
+	c.StopRun()
 }
 
 // 获取文档内容
@@ -1280,7 +1333,7 @@ func (c *DocumentController) Compare() {
 func (c *DocumentController) isReadable(identify, token string) (*models.BookResult, bool) {
 	book, err := models.NewBook().FindByFieldFirst("identify", identify)
 	if err != nil {
-		logs.Error(err)
+		logs.Error("identify: %s, err %v", identify, err)
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.item_not_exist"))
 		return nil, false
 	}

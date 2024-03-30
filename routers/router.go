@@ -239,6 +239,7 @@ func init() {
 	web.Router("/api/:key/create", &controllers.DocumentController{}, "post:Create")
 	web.Router("/api/:key/delete", &controllers.DocumentController{}, "post:Delete")
 	web.Router("/api/:key/content/?:id", &controllers.DocumentController{}, "*:Content")
+	web.CtrlGet("/api/book/:identify/download/?:id", (*controllers.DocumentController).DownloadDocument)
 	web.Router("/api/:key/compare/:id", &controllers.DocumentController{}, "*:Compare")
 	web.Router("/api/search/user/:key", &controllers.SearchController{}, "*:User")
 	web.CtrlGet("/api/aigc/messages", (*controllers.AigcController).ListChatMessages)
