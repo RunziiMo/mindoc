@@ -48,12 +48,14 @@ func (c *AigcController) DocAnalyze() {
 	doc, err := models.NewDocument().Find(id)
 	if err != nil {
 		c.JsonResult(1, "文章不存在")
+		return
 	}
 
 	m := models.NewAigcChatMessage()
 	m.DocumentId = id
 	if !c.isUserLoggedIn() {
 		c.JsonResult(1, "请先登录，再进行交互")
+		return
 	}
 	if len(c.Member.RealName) != 0 {
 		m.Author = c.Member.RealName
@@ -66,10 +68,18 @@ func (c *AigcController) DocAnalyze() {
 	m.Date = time.Now()
 	m.Content = api
 
+	err = m.Insert()
+	if err != nil {
+		logs.Error("failed to insert chat message %v", err)
+		c.JsonResult(1, err.Error(), err)
+		return
+	}
+
 	inferenceServerUrl, err := web.AppConfig.String("inference_server_host")
 	if err != nil {
 		logs.Error("failed to get inference server host %v", err)
 		c.JsonResult(1, "获取推理服务地址失败", err)
+		return
 	}
 	body := map[string]any{
 		"data": doc.Markdown,
@@ -83,12 +93,7 @@ func (c *AigcController) DocAnalyze() {
 		c.JsonResult(1, "访问推理服务失败", err)
 	}
 	logs.Trace("inference result %s", m.Response)
-
-	err = m.Insert()
-	if err != nil {
-		logs.Error("failed to insert chat message %v", err)
-		c.JsonResult(1, err.Error(), err)
-	}
+	m.Update("response")
 
 	c.JsonResult(0, "ok", m)
 }
@@ -101,12 +106,14 @@ func (c *AigcController) DocChat() {
 	doc, err := models.NewDocument().Find(id)
 	if err != nil {
 		c.JsonResult(1, "文章不存在")
+		return
 	}
 
 	m := models.NewAigcChatMessage()
 	m.DocumentId = id
 	if !c.isUserLoggedIn() {
 		c.JsonResult(1, "请先登录，再进行交互")
+		return
 	}
 	if len(c.Member.RealName) != 0 {
 		m.Author = c.Member.RealName
@@ -118,11 +125,18 @@ func (c *AigcController) DocChat() {
 	m.IPAddress = strings.Split(m.IPAddress, ":")[0]
 	m.Date = time.Now()
 	m.Content = prompt
+	err = m.Insert()
+	if err != nil {
+		logs.Error("failed to insert chat message %v", err)
+		c.JsonResult(1, err.Error(), err)
+		return
+	}
 
 	inferenceServerUrl, err := web.AppConfig.String("inference_server_host")
 	if err != nil {
 		logs.Error("failed to get inference server host %v", err)
 		c.JsonResult(1, "获取推理服务地址失败", err)
+		return
 	}
 	body := map[string]any{
 		"input":    doc.Markdown,
@@ -137,12 +151,7 @@ func (c *AigcController) DocChat() {
 		c.JsonResult(1, "访问推理服务失败", err)
 	}
 	logs.Trace("inference result %s", m.Response)
-
-	err = m.Insert()
-	if err != nil {
-		logs.Error("failed to insert chat message %v", err)
-		c.JsonResult(1, err.Error(), err)
-	}
+	m.Update("response")
 
 	c.JsonResult(0, "ok", m)
 }

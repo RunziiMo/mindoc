@@ -132,18 +132,18 @@ func (m *AigcChatMessage) Insert() error {
 		return err
 	}
 	book, err := NewBook().Find(document.BookId)
-	//如果评论的项目不存在
+	// 如果评论的项目不存在
 	if err != nil {
 		return err
 	}
-	//如果已关闭评论
+	// 如果已关闭评论
 	if book.CommentStatus == "closed" {
 		return ErrCommentClosed
 	}
 	if book.CommentStatus == "registered_only" && m.MemberId <= 0 {
 		return ErrPermissionDenied
 	}
-	//如果仅参与者评论
+	// 如果仅参与者评论
 	if book.CommentStatus == "group_only" {
 		if m.MemberId <= 0 {
 			return ErrPermissionDenied

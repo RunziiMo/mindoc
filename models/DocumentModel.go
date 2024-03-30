@@ -138,6 +138,13 @@ func (item *Document) RecursiveDocument(docId int) error {
 		o.Delete(doc)
 		NewDocumentHistory().Clear(doc.DocumentId)
 	}
+	attachList, _ := NewAttachment().FindListByDocumentId(item.DocumentId)
+	for _, attach := range attachList {
+		if err := attach.Delete(); err != nil {
+			logs.Error("delete attach %v", err)
+		}
+	}
+	// TODO delete document file
 	var maps []orm.Params
 
 	_, err := o.Raw("SELECT document_id FROM " + item.TableNameWithPrefix() + " WHERE parent_id=" + strconv.Itoa(docId)).Values(&maps)

@@ -1,4 +1,4 @@
-//数据库模型.
+// 数据库模型.
 package models
 
 import (
@@ -83,7 +83,7 @@ func (m *Attachment) Find(id int) (*Attachment, error) {
 	return m, err
 }
 
-//查询指定文档的附件列表
+// 查询指定文档的附件列表
 func (m *Attachment) FindListByDocumentId(docId int) (attaches []*Attachment, err error) {
 	o := orm.NewOrm()
 
@@ -91,7 +91,7 @@ func (m *Attachment) FindListByDocumentId(docId int) (attaches []*Attachment, er
 	return
 }
 
-//分页查询附件
+// 分页查询附件
 func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*AttachmentResult, totalCount int, err error) {
 	o := orm.NewOrm()
 

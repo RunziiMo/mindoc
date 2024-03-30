@@ -249,7 +249,8 @@ func (c *DocumentController) prepareData(bookResult *models.BookResult, doc *mod
 	}
 	docxPath := strings.ReplaceAll(doc.Identify, "-", string(os.PathSeparator))
 	docxPath = filepath.Join(os.TempDir(), docxPath)
-	destPath := filepath.Join(conf.WorkingDirectory, "documents", doc.Identify)
+	destPath := filepath.Join(conf.WorkingDirectory, "documents", bookResult.Identify, doc.Identify)
+	_ = os.MkdirAll(filepath.Dir(destPath), os.ModePerm)
 	if filetil.FileExists(docxPath) && !filetil.FileExists(destPath) {
 		if err = filetil.CopyFile(docxPath, destPath); err != nil {
 			logs.Error("拷贝文件失败 => ", err)
@@ -788,7 +789,7 @@ func (c *DocumentController) DownloadDocument() {
 		return
 	}
 
-	docFilePath := filepath.Join(conf.WorkingDirectory, "documents", doc.Identify)
+	docFilePath := filepath.Join(conf.WorkingDirectory, "documents", bookResult.Identify, doc.Identify)
 	if !filetil.FileExists(docFilePath) {
 		logs.Error("文档文件不存在 %s", docFilePath)
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.system_error"))
@@ -1121,7 +1122,7 @@ func (c *DocumentController) History() {
 
 	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
-		logs.Error("Delete => ", err)
+		logs.Error("History => ", err)
 		c.Data["ErrorMessage"] = i18n.Tr(c.Lang, "message.get_doc_his_failed")
 		return
 	}
@@ -1189,7 +1190,7 @@ func (c *DocumentController) DeleteHistory() {
 
 	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
-		logs.Error("Delete => ", err)
+		logs.Error("DeleteHistory => ", err)
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.get_doc_his_failed"))
 	}
 
@@ -1247,7 +1248,7 @@ func (c *DocumentController) RestoreHistory() {
 
 	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
-		logs.Error("Delete => ", err)
+		logs.Error("RestoreHistory => ", err)
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.get_doc_his_failed"))
 	}
 

@@ -459,7 +459,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 	}
 	o.Begin()
 
-	//删除附件,这里没有删除实际物理文件
+	// 删除附件,这里没有删除实际物理文件
 	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
 		_, err = txOrm.Raw("DELETE FROM "+NewAttachment().TableNameWithPrefix()+" WHERE book_id=?", book.BookId).Exec()
 		return err
@@ -467,7 +467,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		return err
 	}
 
-	//删除文档
+	// 删除文档
 	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
 		_, err = txOrm.Raw("DELETE FROM "+NewDocument().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
 		return err
@@ -482,8 +482,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		return err
 	}
 
-	//删除关系
-
+	// 删除文档成员关系
 	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
 		_, err = txOrm.Raw("DELETE FROM "+NewRelationship().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
 		return err
@@ -491,14 +490,14 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		return err
 	}
 
+	// 删除文档团队关系
 	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
 		_, err = txOrm.Raw(fmt.Sprintf("DELETE FROM %s WHERE book_id=?", NewTeamRelationship().TableNameWithPrefix()), book.BookId).Exec()
 		return err
 	}); err != nil {
 		return err
 	}
-	//删除模板
-
+	// 删除模板
 	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
 		_, err = txOrm.Raw("DELETE FROM "+NewTemplate().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
 		return err
@@ -510,17 +509,19 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		NewLabel().InsertOrUpdateMulti(book.Label)
 	}
 
-	//删除导出缓存
+	// 删除导出缓存
 	if err := os.RemoveAll(filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(id))); err != nil {
 		logs.Error("删除项目缓存失败 ->", err)
 	}
-	//删除附件和图片
+	// 删除附件和图片
 	if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", book.Identify)); err != nil {
 		logs.Error("删除项目附件和图片失败 ->", err)
 	}
-
+	// 删除文档原文件
+	if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory, "documents", book.Identify)); err != nil {
+		logs.Error("删除项目附件和图片失败 ->", err)
+	}
 	return nil
-
 }
 
 // 分页查找系统首页数据.
@@ -995,7 +996,10 @@ func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
 		logs.Error("导入doc项目转换异常 => ", err)
 		return err
 	}
-	if err = filetil.CopyFile(docxPath, filepath.Join(conf.WorkingDirectory, "documents", doc.Identify)); err != nil {
+	filePath := filepath.Join(conf.WorkingDirectory, "documents", book.Identify, doc.Identify)
+	path := filepath.Dir(filePath)
+	_ = os.MkdirAll(path, os.ModePerm)
+	if err = filetil.CopyFile(docxPath, filePath); err != nil {
 		logs.Error("拷贝文件失败 => ", err)
 		return err
 	}
